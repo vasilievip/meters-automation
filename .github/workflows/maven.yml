@@ -24,3 +24,10 @@ jobs:
         java-version: 11
     - name: Build with Maven
       run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
+      env:
+        SMARTMAC_COLDCOUNTERDEVICEID: ${{ secrets.SMARTMAC_COLDCOUNTERDEVICEID }}
+        SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
+        KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
+        KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
+        KYIVVODOKANAL_EMAIL: ${{ secrets.KYIVVODOKANAL_EMAIL }}
+        KYIVVODOKANAL_PASSWORD: ${{ secrets.KYIVVODOKANAL_PASSWORD }}
