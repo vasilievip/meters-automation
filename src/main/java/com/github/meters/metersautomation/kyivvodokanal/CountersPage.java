@@ -43,11 +43,19 @@ public class CountersPage {
 
     public CountersPage activateColdCounter() {
         webDriver.findElement(activateColdButtonLocator).click();
+
+        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
+                .until(ExpectedConditions.elementToBeClickable(submitColdButtonLocator));
+
         return this;
     }
 
     public CountersPage activateHotCounter() {
         webDriver.findElement(activateHotButtonLocator).click();
+
+        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
+                .until(ExpectedConditions.elementToBeClickable(submitHotButtonLocator));
+
         return this;
     }
 
@@ -89,15 +97,15 @@ public class CountersPage {
         WebElement submitButton = webDriver.findElement(submitLocator);
         submitButton.click();
 
-        WebDriverWait wait1 = new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS);
-        wait1.until(ExpectedConditions.alertIsPresent());
+        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
+                .until(ExpectedConditions.alertIsPresent());
 
         log.info(webDriver.switchTo().alert().getText());
 
         webDriver.switchTo().alert().accept();
 
-        WebDriverWait wait2 = new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS);
-        wait2.until(ExpectedConditions.alertIsPresent());
+        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
+                .until(ExpectedConditions.alertIsPresent());
 
         log.info(webDriver.switchTo().alert().getText());
 
