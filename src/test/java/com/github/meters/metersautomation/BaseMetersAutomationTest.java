@@ -1,7 +1,6 @@
 package com.github.meters.metersautomation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,7 +39,6 @@ abstract class BaseMetersAutomationTest {
         }
     }
 
-    @NotNull
     private static List<File> getVideoFilesFromTarget() {
         Path dir = Paths.get("target");
         List<File> files = new ArrayList<>();
