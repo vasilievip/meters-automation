@@ -2,30 +2,37 @@ package com.github.meters.metersautomation.kyivteploenergo;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class CountersPage {
 
-    By coldWaterPreviousLocator = By.id("edit-counter-prev-215487-1");
-    By hotWaterPreviousLocator = By.id("edit-counter-prev-243683-2");
+    By hotWaterTextLocator = By.xpath("//div[contains(text(),'Гаряча')]");
 
-    By coldWaterNextLocator = By.id("edit-counter-last-215487-1");
-    By hotWaterNextLocator = By.id("edit-counter-last-243683-2");
+    By hotWaterPreviousLocator;
+    By hotWaterNextLocator;
 
     By submitLocator = By.id("edit-next");
     By successPanelLocator = By.xpath("//*[@class='success']");
+
 
     WebDriver webDriver;
 
     public CountersPage(WebDriver webDriver) {
         this.webDriver = webDriver;
+
+        initHotCounterLocators(webDriver);
     }
 
-    public String getColdCounterPreviousData(){
-        String text = webDriver.findElement(coldWaterPreviousLocator).getText();
-        String[] lines = text.split("\n");
-        if(lines.length > 0)
-            return lines[0];
-        return "";
+    private void initHotCounterLocators(WebDriver webDriver) {
+        WebElement hotWaterTextElement = webDriver.findElement(hotWaterTextLocator);
+
+        String hotWaterTextElementID = hotWaterTextElement.getAttribute("id");
+
+        String hotWaterPreviousID = hotWaterTextElementID.replace("edit-service-name", "edit-counter-prev");
+        String hotWaterNextID = hotWaterTextElementID.replace("edit-service-name", "edit-counter-last");
+
+        hotWaterPreviousLocator = By.id(hotWaterPreviousID);
+        hotWaterNextLocator = By.id(hotWaterNextID);
     }
 
     public String getHotCounterPreviousData(){
@@ -36,20 +43,9 @@ public class CountersPage {
         return "";
     }
 
-    public CountersPage setColdCounterData(String data){
-        webDriver.findElement(coldWaterNextLocator).clear();
-        webDriver.findElement(coldWaterNextLocator).sendKeys(data);
-        return this;
-    }
-
     public CountersPage setHotCounterData(String data){
         webDriver.findElement(hotWaterNextLocator).clear();
         webDriver.findElement(hotWaterNextLocator).sendKeys(data);
-        return this;
-    }
-
-    public CountersPage copyColdCounterFromPrevious(){
-        setColdCounterData(getColdCounterPreviousData());
         return this;
     }
 
@@ -59,7 +55,6 @@ public class CountersPage {
     }
 
     public CountersPage copyCountersDataFromPrevious(){
-        copyColdCounterFromPrevious();
         copyHotCounterFromPrevious();
         return this;
     }
