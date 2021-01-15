@@ -27,7 +27,7 @@ jobs:
       id: BuildWithMaven1
       run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
       env:
-        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
+        SMARTMAC_COLDCOUNTERDEVICEID: ${{ secrets.SMARTMAC_COLDCOUNTERDEVICEID }}
         SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
         KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
         KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
@@ -39,7 +39,7 @@ jobs:
       if: steps.BuildWithMaven1.outcome=='failure'         # check the step outcome, retry 1st time
       run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
       env:
-        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
+        SMARTMAC_COLDCOUNTERDEVICEID: ${{ secrets.SMARTMAC_COLDCOUNTERDEVICEID }}
         SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
         KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
         KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
@@ -51,7 +51,7 @@ jobs:
       if: steps.BuildWithMaven2.outcome=='failure'         # check the step outcome, retry 1st time
       run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
       env:
-        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
+        SMARTMAC_COLDCOUNTERDEVICEID: ${{ secrets.SMARTMAC_COLDCOUNTERDEVICEID }}
         SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
         KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
         KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
