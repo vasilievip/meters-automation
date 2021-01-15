@@ -22,12 +22,46 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Build with Maven
+    - name: BuildWithMaven1
+      continue-on-error: true          # make the step always success
+      id: BuildWithMaven1
       run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
       env:
-        SMARTMAC_COLDCOUNTERDEVICEID: ${{ secrets.SMARTMAC_COLDCOUNTERDEVICEID }}
+        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
         SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
         KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
         KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
         KYIVVODOKANAL_EMAIL: ${{ secrets.KYIVVODOKANAL_EMAIL }}
         KYIVVODOKANAL_PASSWORD: ${{ secrets.KYIVVODOKANAL_PASSWORD }}
+    - name: BuildWithMaven2
+      continue-on-error: true          # make the step always success
+      id: BuildWithMaven2
+      if: steps.BuildWithMaven1.outcome=='failure'         # check the step outcome, retry 1st time
+      run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
+      env:
+        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
+        SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
+        KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
+        KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
+        KYIVVODOKANAL_EMAIL: ${{ secrets.KYIVVODOKANAL_EMAIL }}
+        KYIVVODOKANAL_PASSWORD: ${{ secrets.KYIVVODOKANAL_PASSWORD }}
+    - name: BuildWithMaven3
+      continue-on-error: true          # make the step always success
+      id: BuildWithMaven3
+      if: steps.BuildWithMaven2.outcome=='failure'         # check the step outcome, retry 1st time
+      run: mvn -B verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dsurefire.rerunFailingTestsCount=2 -U -nsu --batch-mode 
+      env:
+        SMARTMAC_DEVICEID: ${{ secrets.SMARTMAC_DEVICEID }}
+        SMARTMAC_APIKEY: ${{ secrets.SMARTMAC_APIKEY }}
+        KYIVTEPLOENERGO_EMAIL: ${{ secrets.KYIVTEPLOENERGO_EMAIL }}
+        KYIVTEPLOENERGO_PASSWORD: ${{ secrets.KYIVTEPLOENERGO_PASSWORD }}
+        KYIVVODOKANAL_EMAIL: ${{ secrets.KYIVVODOKANAL_EMAIL }}
+        KYIVVODOKANAL_PASSWORD: ${{ secrets.KYIVVODOKANAL_PASSWORD }}
+    - name: set the status              # set the workflow status if command failed
+      if: always()
+      run: |
+          if ${{ steps.BuildWithMaven1.outcome=='success' || steps.BuildWithMaven2.outcome=='success' || steps.BuildWithMaven3.outcome=='success' }}; then
+             echo fine
+          else
+             exit 1
+          fi
