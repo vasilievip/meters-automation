@@ -6,6 +6,7 @@ import com.github.meters.metersautomation.kyivvodokanal.LoginPage;
 import com.github.meters.metersautomation.smartmac.DeviceInfo;
 import com.github.meters.metersautomation.smartmac.DeviceInfoClient;
 import com.github.meters.metersautomation.smartmac.SmartMacProperties;
+import io.github.artsok.RepeatedIfExceptionsTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +26,7 @@ class KyivVodoCanalTests extends BaseMetersAutomationTest {
     SmartMacProperties smartMacProperties;
 
     @Test
+    @RepeatedIfExceptionsTest(repeats = 3)
     void vodokanal() {
         assertThat(smartMacProperties.getApiKey()).isNotEmpty();
         assertThat(smartMacProperties.getColdCounterDeviceId()).isNotEmpty();

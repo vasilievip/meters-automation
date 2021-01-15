@@ -2,6 +2,7 @@ package com.github.meters.metersautomation;
 
 import com.github.meters.metersautomation.kyivteploenergo.KyivTeploEnergoProperties;
 import com.github.meters.metersautomation.kyivteploenergo.LoginPage;
+import io.github.artsok.RepeatedIfExceptionsTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,6 +14,7 @@ class KyivTeploEnergoTests extends BaseMetersAutomationTest {
     KyivTeploEnergoProperties teploEnergoProperties;
 
     @Test
+    @RepeatedIfExceptionsTest(repeats = 3)
     void teploEnergo() {
         assertThat(teploEnergoProperties.getEmail()).isNotEmpty();
         assertThat(teploEnergoProperties.getPassword()).isNotEmpty();
