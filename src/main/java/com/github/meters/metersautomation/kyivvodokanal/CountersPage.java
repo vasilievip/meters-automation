@@ -1,5 +1,7 @@
 package com.github.meters.metersautomation.kyivvodokanal;
 
+import co.boorse.seleniumtable.SeleniumTable;
+import co.boorse.seleniumtable.SeleniumTableRow;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -8,88 +10,115 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 @Slf4j
 public class CountersPage {
 
-    private static final int TIME_OUT_IN_SECONDS = 30;
+    static final int TEN_TIMES = 10;
+    static final int TIME_OUT_IN_SECONDS = 30;
 
-    By hotCounterHiDigitsLocator = By.xpath("//*[@class='counter-window counter-hot']/*/*[@class='input-container whole']/*[@class='input']/input");
-    By hotCounterLoDigitsLocator = By.xpath("//*[@class='counter-window counter-hot']/*/*[@class='input-container fractional']/*[@class='input']/input");
-    By activateHotButtonLocator = By.xpath("//*[@class='row counter-hot']/..");
-    By submitHotButtonLocator = By.xpath("//*[@class='counter-window counter-hot']/*/*[@name='single_submit']");
+    static final int COUNTER_NAME_COLUMN_INDEX = 2;
+    static final int COUNTER_PREVIOUS_COLUMN_INDEX = 5;
+    static final int COUNTER_NEXT_COLUMN_INDEX = 6;
 
-    By coldCounterHiDigitsLocator = By.xpath("//*[@class='counter-window counter-cold']/*/*[@class='input-container whole']/*[@class='input']/input");
-    By coldCounterLoDigitsLocator = By.xpath("//*[@class='counter-window counter-cold']/*/*[@class='input-container fractional']/*[@class='input']/input");
-    By activateColdButtonLocator = By.xpath("//*[@class='row counter-cold']/..");
-    By submitColdButtonLocator = By.xpath("//*[@class='counter-window counter-cold']/*/*[@name='single_submit']");
+    static final String HOT_COUNTER_NAME = "гарячої";
+    static final String COLD_COUNTER_NAME = "Холодна";
+
+    By metersTableLocator = By.xpath("//*[@class=\"table\"]");
+    By submitButtonLocator = By.xpath("//*[@class='btn btn-info btn-submit']");
+
+    By changeViewButtonLocator = By.cssSelector(".btn-sm");
 
     WebDriver webDriver;
 
     public CountersPage(WebDriver webDriver) {
+
+        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
+                .until(ExpectedConditions.visibilityOfElementLocated(changeViewButtonLocator));
+
         this.webDriver = webDriver;
-    }
-
-    public CounterData getHotCounterData() {
-        return getCounterData(findCounterElements(hotCounterHiDigitsLocator, hotCounterLoDigitsLocator));
-    }
-
-    public CounterData getColdCounterData() {
-        return getCounterData(findCounterElements(coldCounterHiDigitsLocator, coldCounterLoDigitsLocator));
-    }
-
-    public CountersPage activateColdCounter() {
-        webDriver.findElement(activateColdButtonLocator).click();
-
+        if (webDriver.findElements(submitButtonLocator).isEmpty()) {
+            webDriver.findElement(changeViewButtonLocator).click();
+        }
         new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
-                .until(ExpectedConditions.elementToBeClickable(submitColdButtonLocator));
-
-        return this;
+                .until(ExpectedConditions.visibilityOfElementLocated(submitButtonLocator));
     }
 
-    public CountersPage activateHotCounter() {
-        webDriver.findElement(activateHotButtonLocator).click();
-
-        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
-                .until(ExpectedConditions.elementToBeClickable(submitHotButtonLocator));
-
-        return this;
+    private SeleniumTable getCountersTable() {
+        WebElement tableElement = webDriver.findElement(metersTableLocator);
+        return SeleniumTable.getInstance(tableElement);
     }
 
-    public CountersPage setColdCounterData(CounterData newData){
-        activateColdCounter();
-        setCounterData(newData, coldCounterHiDigitsLocator, coldCounterLoDigitsLocator);
-        return this;
+    private String getCounterData(String counterName) {
+        Optional<SeleniumTableRow> counterRow = getCounterRow(counterName);
+        if (counterRow.isEmpty()) return "";
+
+        return counterRow.get().get(COUNTER_PREVIOUS_COLUMN_INDEX).getText();
     }
 
-    public CountersPage setHotCounterData(CounterData newData){
-        activateHotCounter();
-        setCounterData(newData, hotCounterHiDigitsLocator, hotCounterLoDigitsLocator);
-        return this;
+    private void setCounterData(String counterName, String newData) {
+
+        Optional<SeleniumTableRow> counterRow = getCounterRow(counterName);
+
+        if (counterRow.isEmpty()) return;
+
+        WebElement element = counterRow.get().get(COUNTER_NEXT_COLUMN_INDEX).getElement();
+        WebElement input = element.findElement(By.tagName("input"));
+
+        clearElement(input);
+
+        input.sendKeys(newData);
     }
 
-    public CountersPage copyHotCounterDataFromPrevious(){
+    private void clearElement(WebElement element) {
+        element.sendKeys(Keys.END);
+        for (int i = 0; i < TEN_TIMES; i++)
+            element.sendKeys(Keys.BACK_SPACE);
+    }
+
+    private Optional<SeleniumTableRow> getCounterRow(String counterName) {
+        SeleniumTable table = getCountersTable();
+        for (SeleniumTableRow row : table.rows())
+            if (isNeededCounterRow(row, counterName))
+                return Optional.of(row);
+        return Optional.empty();
+    }
+
+    private boolean isNeededCounterRow(SeleniumTableRow row, String name) {
+        return row.get(COUNTER_NAME_COLUMN_INDEX).getText().contains(name);
+    }
+
+    public CountersPage copyHotCounterDataFromPrevious() {
         setHotCounterData(getHotCounterData());
         return this;
     }
 
-    public CountersPage copyColdCounterDataFromPrevious(){
+    private String getHotCounterData() {
+        return getCounterData(HOT_COUNTER_NAME);
+    }
+
+    public CountersPage setHotCounterData(String newData) {
+        setCounterData(HOT_COUNTER_NAME, newData);
+        return this;
+    }
+
+    public CountersPage copyColdCounterDataFromPrevious() {
         setColdCounterData(getColdCounterData());
         return this;
     }
 
-    public CountersPage submitColdCounter(){
-        activateColdCounter();
-        clickSubmitButton(submitColdButtonLocator);
+    private String getColdCounterData() {
+        return getCounterData(COLD_COUNTER_NAME);
+    }
+
+    public CountersPage setColdCounterData(String newData) {
+        setCounterData(COLD_COUNTER_NAME, newData);
         return this;
     }
 
-    public CountersPage submitHotCounter(){
-        activateHotCounter();
-        clickSubmitButton(submitHotButtonLocator);
+    public CountersPage submitCounters() {
+        clickSubmitButton(submitButtonLocator);
         return this;
     }
 
@@ -103,66 +132,5 @@ public class CountersPage {
         log.info(webDriver.switchTo().alert().getText());
 
         webDriver.switchTo().alert().accept();
-
-        new WebDriverWait(webDriver, TIME_OUT_IN_SECONDS)
-                .until(ExpectedConditions.alertIsPresent());
-
-        log.info(webDriver.switchTo().alert().getText());
-
-        webDriver.switchTo().alert().accept();
-    }
-
-    private CountersPage setCounterData(CounterData newData, By hiDigitsLocator, By loDigitsLocator) {
-        List<WebElement> counterElements = findCounterElements(hiDigitsLocator, loDigitsLocator);
-
-        String[] digits = newData.asArray();
-
-        for (int i = 0; i < digits.length; i++) {
-            counterElements.get(i).sendKeys(Keys.END);
-            counterElements.get(i).sendKeys(Keys.BACK_SPACE);
-            counterElements.get(i).sendKeys(digits[i]);
-        }
-
-        return this;
-    }
-
-    private List<WebElement> findCounterElements(By hiDigitsLocator, By loDigitsLocator) {
-
-        List<WebElement> elementsHi = webDriver.findElements(hiDigitsLocator);
-        List<WebElement> elementsLo = webDriver.findElements(loDigitsLocator);
-
-        if (elementsHi.size() != 5) {
-            throw new IllegalStateException("Counter hi digits found by xpath size " + elementsHi.size() + " is not equal to 5");
-        }
-
-        if (elementsLo.size() != 3) {
-            throw new IllegalStateException("Counter lo digits found by xpath size " + elementsLo.size() + " is not equal to 3");
-        }
-
-        return Stream.concat(elementsHi.stream(), elementsLo.stream())
-                .collect(Collectors.toList());
-    }
-
-    private CounterData getCounterData(List<WebElement> elements) {
-
-        String digit1 = elements.get(0).getAttribute("value");
-        String digit2 = elements.get(1).getAttribute("value");
-        String digit3 = elements.get(2).getAttribute("value");
-        String digit4 = elements.get(3).getAttribute("value");
-        String digit5 = elements.get(4).getAttribute("value");
-        String digit6 = elements.get(5).getAttribute("value");
-        String digit7 = elements.get(6).getAttribute("value");
-        String digit8 = elements.get(7).getAttribute("value");
-
-        return CounterData.builder()
-                .digit1(digit1)
-                .digit2(digit2)
-                .digit3(digit3)
-                .digit4(digit4)
-                .digit5(digit5)
-                .digit6(digit6)
-                .digit7(digit7)
-                .digit8(digit8)
-                .build();
     }
 }

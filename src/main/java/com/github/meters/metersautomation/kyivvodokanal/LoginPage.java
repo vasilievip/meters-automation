@@ -5,14 +5,14 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginPage {
 
-    By usernameLocator = By.id("user_email");
-    By passwordLocator = By.id("user_password");
-    By loginButtonLocator = By.name("commit");
+    By usernameLocator = By.id("account");
+    By passwordLocator = By.id("password");
+    By loginButtonLocator = By.className("submit-button");
 
     WebDriver webDriver;
 
     public LoginPage(WebDriver webDriver) {
-        webDriver.get("https://my.vodokanal.kiev.ua/login");
+        webDriver.get("https://my.vodokanal.kiev.ua/dashboard/sign-in");
         this.webDriver = webDriver;
     }
 

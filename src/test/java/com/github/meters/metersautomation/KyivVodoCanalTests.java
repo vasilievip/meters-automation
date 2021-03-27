@@ -1,13 +1,11 @@
 package com.github.meters.metersautomation;
 
-import com.github.meters.metersautomation.kyivvodokanal.CounterData;
 import com.github.meters.metersautomation.kyivvodokanal.KyivVodoKanalProperties;
 import com.github.meters.metersautomation.kyivvodokanal.LoginPage;
 import com.github.meters.metersautomation.smartmac.DeviceInfo;
 import com.github.meters.metersautomation.smartmac.DeviceInfoClient;
 import com.github.meters.metersautomation.smartmac.SmartMacProperties;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.RetryingTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -26,7 +24,6 @@ class KyivVodoCanalTests extends BaseMetersAutomationTest {
     SmartMacProperties smartMacProperties;
 
     @Test
-    @RetryingTest(3)
     void vodokanal() {
         assertThat(smartMacProperties.getApiKey()).isNotEmpty();
         assertThat(smartMacProperties.getColdCounterDeviceId()).isNotEmpty();
@@ -43,9 +40,8 @@ class KyivVodoCanalTests extends BaseMetersAutomationTest {
         new LoginPage(container.getWebDriver())
                 .loginAs(vodoKanalProperties.getEmail(), vodoKanalProperties.getPassword())
                 .openCountersPage()
-                .setColdCounterData(CounterData.fromNumber(coldCounterRealtimeData.getTotalCounter1()))
-                .submitColdCounter()
+                .setColdCounterData(coldCounterRealtimeData.totalCounter1AsString())
                 .copyHotCounterDataFromPrevious()
-                .submitHotCounter();
+                .submitCounters();
     }
 }
