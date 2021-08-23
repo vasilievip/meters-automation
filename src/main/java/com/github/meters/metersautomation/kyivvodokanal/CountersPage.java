@@ -22,8 +22,8 @@ public class CountersPage {
     static final int COUNTER_PREVIOUS_COLUMN_INDEX = 5;
     static final int COUNTER_NEXT_COLUMN_INDEX = 6;
 
-    static final String HOT_COUNTER_NAME = "гарячої";
-    static final String COLD_COUNTER_NAME = "Холодна";
+    static final String HOT_COUNTER_NAME = "ГВ";
+    static final String COLD_COUNTER_NAME = "водопостачання";
 
     By metersTableLocator = By.xpath("//*[@class=\"table\"]");
     By submitButtonLocator = By.xpath("//*[@class='btn btn-info btn-submit']");
@@ -61,7 +61,7 @@ public class CountersPage {
 
         Optional<SeleniumTableRow> counterRow = getCounterRow(counterName);
 
-        if (counterRow.isEmpty()) return;
+        if (counterRow.isEmpty()) throw new IllegalStateException(counterName + " not found!");
 
         WebElement element = counterRow.get().get(COUNTER_NEXT_COLUMN_INDEX).getElement();
         WebElement input = element.findElement(By.tagName("input"));
